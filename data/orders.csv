@@ -1,4 +1,4 @@
-order_id uuid,customer_name TEXT,customer_id uuid,items set<uuid>,total_sum FLOAT,date TIMESTAMP
+order_id,customer_name,customer_id,items,total_sum,date
 2645f747-14bd-11e5-aa97-8438355b7e3a,Ivan Ivanov,2645f7de-14bd-11e5-855e-8438355b7e3a,"{2644c36e-14bd-11e5-839e-8438355b7e3a,2645eb02-14bd-11e5-b5d0-8438355b7e3a,2645ee40-14bd-11e5-8725-8438355b7e3a}",2500.0,2024-04-14
 2645f86b-14bd-11e5-812f-8438355b7e3a,Petro Petrov,2645f95c-14bd-11e5-953f-8438355b7e3a,"{2645f1bd-14bd-11e5-af1a-8438355b7e3a,2645f2fd-14bd-11e5-8162-8438355b7e3a}",830.0,2024-04-15
 2645fa0c-14bd-11e5-b322-8438355b7e3a,Hanna Petrova,2645fa0c-14bd-11e5-b322-8438355b7e3a,"{2645e9a3-14bd-11e5-9bc5-8438355b7e3a,2645f107-14bd-11e5-9321-8438355b7e3a}",1700.0,2024-04-16
