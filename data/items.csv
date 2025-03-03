@@ -1,0 +1,24 @@
+item_id,category,model,producer,price
+1645ea59-14bd-11e5-a993-8138354b7e31,Phone,iPhone 6,Apple,600
+1645ea59-14bd-11e5-a993-8138354b7e31,Phone,iPhone 10,Apple,700
+1645ea59-14bd-11e5-a993-8138354b7e31,Phone,iPhone 12,Apple,1000
+1645ea59-14bd-11e5-a993-8138354b7e31,Phone,iPhone 15,Apple,1200
+1645ea59-14bd-11e5-a993-8138354b7e31,Laptop,ThinkPad T14,Lenovo,1200
+1645ea59-14bd-11e5-a993-8138354b7e31,Laptop,ThinkPad T16,Lenovo,1600
+1645ea59-14bd-11e5-a993-8138354b7e31,Laptop,ThinkPad P14,Lenovo,1250
+1645ea59-14bd-11e5-a993-8138354b7e31,Laptop,ThinkPad P16,Lenovo,1650
+1645ea59-14bd-11e5-a993-8138354b7e31,Laptop,Legion Pro7,Lenovo,2500
+1645ea59-14bd-11e5-a993-8138354b7e31,Laptop,Legion 9,Lenovo,3000
+1645ea59-14bd-11e5-a993-8138354b7e31,Laptop,ProBook 640,HP,300
+1645ea59-14bd-11e5-a993-8138354b7e31,Laptop,ProBook 840,HP,350
+1645ea59-14bd-11e5-a993-8138354b7e31,Laptop,Chromebook 14,HP,400
+1645ea59-14bd-11e5-a993-8138354b7e31,Laptop,Chromebook 16,HP,500
+1645ea59-14bd-11e5-a993-8138354b7e31,Laptop,Latitude 5580,Dell,330
+1645ea59-14bd-11e5-a993-8138354b7e31,Laptop,Latitude 7490,Dell,400
+1645ea59-14bd-11e5-a993-8138354b7e31,Laptop,Vostro 3530,Dell,500
+1645ea59-14bd-11e5-a993-8138354b7e31,Laptop,Inspiron 15,Dell,550
+1645ea59-14bd-11e5-a993-8138354b7e31,Phone,Galaxy S25,Samsung,1500
+1645ea59-14bd-11e5-a993-8138354b7e31,Phone,Galaxy A35,Samsung,400
+1645ea59-14bd-11e5-a993-8138354b7e31,TV,43UT91006LA,LG,520
+1645ea59-14bd-11e5-a993-8138354b7e31,Camera,EOS R7,Canon,1500
+1645ea59-14bd-11e5-a993-8138354b7e31,Camera,D5100,Nikon,600

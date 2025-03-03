@@ -1,0 +1,24 @@
+category,model,producer,price,properties
+Phone,iPhone 6,Apple,600,{'color': 'grey', 'weight': '210'}
+Phone,iPhone 10,Apple,700,{'color': 'white', 'weight': '230'}
+Phone,iPhone 12,Apple,1000,{'color': 'black', 'weight': '250'}
+Phone,iPhone 15,Apple,1200,{'color': 'grey', 'weight': '240'}
+Laptop,ThinkPad T14,Lenovo,1200
+Laptop,ThinkPad T16,Lenovo,1600
+Laptop,ThinkPad P14,Lenovo,1250
+Laptop,ThinkPad P16,Lenovo,1650
+Laptop,Legion Pro7,Lenovo,2500
+Laptop,Legion 9,Lenovo,3000
+Laptop,ProBook 640,HP,300
+Laptop,ProBook 840,HP,350
+Laptop,Chromebook 14,HP,400
+Laptop,Chromebook 16,HP,500
+Laptop,Latitude 5580,Dell,330
+Laptop,Latitude 7490,Dell,400
+Laptop,Vostro 3530,Dell,500
+Laptop,Inspiron 15,Dell,550
+Phone,Galaxy S25,Samsung,1500,{'color': 'blue', 'weight': '180'}
+Phone,Galaxy A35,Samsung,400,{'color': 'white', 'weight': '150'}
+TV,43UT91006LA,LG,520,{'diagonal': '43', 'weight': '1800'}
+Camera,EOS R7,Canon,1500
+Camera,D5100,Nikon,600
