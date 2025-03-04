@@ -1,0 +1,287 @@
+lab5_commands.txt
+
+cqlsh cassandra
+
+CREATE KEYSPACE shop
+WITH REPLICATION = {
+	'class' : 'SimpleStrategy',
+	'replication_factor' : 1
+};
+
+USE shop;
+
+item_id,category,model,producer,price
+
+CREATE TABLE items (
+	item_id UUID,
+	category TEXT,
+	model TEXT,
+	producer TEXT,
+	price FLOAT,
+	properties MAP<TEXT, TEXT>,
+	PRIMARY KEY ((category), price, producer, item_id))
+	WITH CLUSTERING ORDER BY (price asc, producer asc, item_id asc);
+	
+CREATE INDEX ON items (properties);
+	
+category,model,producer,price,properties
+
+curl https://raw.githubusercontent.com/OleksandrOHavrylenko/DistributedDBLab5/refs/heads/main/data/items_with_properties.csv --output items_with_properties.csv
+           
+COPY items(item_id,category,model,producer,properties,price)
+FROM '/home/hw5/data/items_with_properties.csv' WITH HEADER = true;
+
+1) Напишіть запит, який показує структуру створеної таблиці (команда DESCRIBE).
+DESCRIBE TABLE items;
+
+2) Напишіть запит, який виводить усі товари в певній категорії відсортовані за ціною.
+SELECT * 
+FROM items
+WHERE category = 'Laptop';
+
+SELECT * 
+FROM items
+WHERE category = 'Phone';
+
+3) 3) Напишіть запити, які вибирають товари за різними критеріями в межах певної категорії
+(тут де треба замість індексу використайте Matirialized view):
+
+- назва
+CREATE MATERIALIZED VIEW IF NOT EXISTS items_cat_model AS
+  SELECT * FROM items
+  WHERE category IS NOT NULL
+  AND price IS NOT NULL
+  AND producer IS NOT NULL
+  AND item_id IS NOT NULL
+  AND model IS NOT NULL
+  PRIMARY KEY (category, model, price, producer, item_id);
+
+SELECT * 
+FROM items_cat_model
+WHERE category = 'Phone'
+AND model = 'Galaxy S25';
+
+○ ціна (в проміжку),
+
+SELECT * 
+FROM items
+WHERE category = 'Phone'
+AND price >= 600
+AND price <= 1500;
+
+○ ціна та виробник
+SELECT * 
+FROM items
+WHERE category = 'Phone'
+AND price = 1500
+AND producer = 'Samsung';
+
+CREATE MATERIALIZED VIEW IF NOT EXISTS items_producer_price AS
+  SELECT * FROM items
+  WHERE category IS NOT NULL
+  AND price IS NOT NULL
+  AND producer IS NOT NULL
+  AND item_id IS NOT NULL
+  PRIMARY KEY (category, producer, price, item_id);
+  
+SELECT * 
+FROM items_producer_price
+WHERE category = 'Phone'
+AND producer = 'Apple'
+AND price > 700;
+
+2)Створіть таблицю orders в якій міститься ім'я замовника і інформація про
+замовлення: перелік id-товарів у замовленні, вартість замовлення, дата
+замовлення, ....
+Для кожного замовника повинна бути можливість швидко шукати його
+замовлення і виконувати по них запити. Ця вимога має бути врахована при
+створенні ключа для таблиці.
+
+
+CREATE TABLE orders (
+	order_id uuid,
+	customer_name TEXT,
+	customer_id uuid,
+	items set<uuid>,
+	total_sum FLOAT,	
+	date TIMESTAMP,	
+	PRIMARY KEY ((customer_id), date, order_id))
+	WITH CLUSTERING ORDER BY (date desc, order_id asc);
+	
+curl https://raw.githubusercontent.com/OleksandrOHavrylenko/DistributedDBLab5/refs/heads/main/data/orders.csv --output orders.csv
+
+COPY orders(order_id,customer_name,customer_id,items,total_sum,date)
+FROM '/home/hw5/data/orders.csv' WITH HEADER = true;
+
+2.1) Напишіть запит, який показує структуру створеної таблиці (команда DESCRIBE)
+DESCRIBE TABLE orders;
+
+2.2) Для замовника виведіть всі його замовлення відсортовані за часом коли
+вони були зроблені.
+
+SELECT *
+FROM orders
+WHERE customer_id = 2645f7de-14bd-11e5-855e-8438355b7e3a;
+
+
+2.3) Для кожного замовників визначте суму на яку були зроблені усі його
+замовлення
+
+SELECT customer_id, customer_name, SUM(total_sum) AS TOTAL_SUM_BY_CUSTOMER
+FROM orders
+GROUP BY customer_id;
+
+2.4) Для кожного замовлення виведіть час коли його ціна були занесена в базу
+(SELECT WRITETIME)
+
+SELECT order_id, WRITETIME (total_sum)
+FROM orders;
+
+3)
+3.1) Сконфігурувати кластер з 3-х нод:
+docker-compose up
+
+3.2)Перевірити правильність конфігурації за допомогоюnodetool status.
+docker exec cassandra-3 nodetool status
+
+3.3)Викоритовуючи cqlsh, створити три Keyspace з replication factor 1, 2, 3 з SimpleStrategy
+CREATE KEYSPACE ks1
+WITH REPLICATION = {
+	'class' : 'SimpleStrategy',
+	'replication_factor' : 1
+};
+
+CREATE KEYSPACE ks2
+WITH REPLICATION = {
+	'class' : 'SimpleStrategy',
+	'replication_factor' : 2
+};
+
+CREATE KEYSPACE ks3
+WITH REPLICATION = {
+	'class' : 'SimpleStrategy',
+	'replication_factor' : 3
+};
+docker exec -it cassandra-1 bash
+docker exec -it cassandra-2 bash
+docker exec -it cassandra-3 bash
+3.4)В кожному з кейспейсів створити прості таблиці
+CREATE TABLE IF NOT EXISTS ks1.shopping_cart_ks1 (
+        userid text PRIMARY KEY,
+        item_count int,
+        last_update_timestamp timestamp
+);
+CREATE TABLE IF NOT EXISTS ks2.shopping_cart_ks2 (
+        userid text PRIMARY KEY,
+        item_count int,
+        last_update_timestamp timestamp
+);
+CREATE TABLE IF NOT EXISTS ks3.shopping_cart_ks3 (
+        userid text PRIMARY KEY,
+        item_count int,
+        last_update_timestamp timestamp
+);
+
+5. Спробуйте писати і читати в ці таблиці підключаюсь на різні ноди.
+
+INSERT INTO ks1.shopping_cart_ks1(userid, item_count, last_update_timestamp)
+VALUES ('1', 1, toTimeStamp(now()));
+INSERT INTO ks1.shopping_cart_ks1(userid, item_count, last_update_timestamp)
+VALUES ('2', 2, toTimeStamp(now()));
+INSERT INTO ks1.shopping_cart_ks1(userid, item_count, last_update_timestamp)
+VALUES ('3', 3, toTimeStamp(now()));
+
+INSERT INTO ks2.shopping_cart_ks2(userid, item_count, last_update_timestamp)
+VALUES ('4', 11, toTimeStamp(now()));
+INSERT INTO ks2.shopping_cart_ks2(userid, item_count, last_update_timestamp)
+VALUES ('5', 22, toTimeStamp(now()));
+INSERT INTO ks2.shopping_cart_ks2(userid, item_count, last_update_timestamp)
+VALUES ('6', 33, toTimeStamp(now()));
+
+INSERT INTO ks3.shopping_cart_ks3(userid, item_count, last_update_timestamp)
+VALUES ('7', 111, toTimeStamp(now()));
+INSERT INTO ks3.shopping_cart_ks3(userid, item_count, last_update_timestamp)
+VALUES ('8', 222, toTimeStamp(now()));
+INSERT INTO ks3.shopping_cart_ks3(userid, item_count, last_update_timestamp)
+VALUES ('9', 333, toTimeStamp(now()));
+
+SELECT *
+FROM ks1.shopping_cart_ks1;
+
+SELECT *
+FROM ks2.shopping_cart_ks2;
+
+SELECT *
+FROM ks3.shopping_cart_ks3;
+
+TRUNCATE ks1.shopping_cart_ks1;
+TRUNCATE ks2.shopping_cart_ks2;
+TRUNCATE ks3.shopping_cart_ks3;
+
+6. Вставте дані в створені таблиці і подивіться на їх розподіл по вузлах кластера для
+кожного з кейспесов (команда nodetool status)
+
+docker exec cassandra-3 nodetool status ks1;
+docker exec cassandra-3 nodetool status ks2;
+docker exec cassandra-3 nodetool status ks3;
+
+7. Для якогось запису з кожного з кейспейсу виведіть ноди на яких зберігаються дані.
+docker exec cassandra-3 nodetool getendpoints ks1 shopping_cart_ks1 '2';
+docker exec cassandra-3 nodetool getendpoints ks2 shopping_cart_ks2 '5';
+docker exec cassandra-3 nodetool getendpoints ks3 shopping_cart_ks3 '8';
+
+8. Відключити одну з нод. Для кожного з кейспейсів перевірити з якими рівнями
+consistency можемо читати та писати.
+use ks1;
+CONSISTENCY ONE;
+
+use ks2;
+CONSISTENCY;
+
+use ks3;
+CONSISTENCY;
+
+9. Зробить так щоб три ноди працювали, але не бачили одна одну по мережі
+(заблокуйте чи відключити зв'язок між ними).
+
+docker inspect cassandra-1 -f "{{json .NetworkSettings.Networks }}"
+distributeddblab5_cassandra-net
+docker network disconnect distributeddblab5_cassandra-net cassandra-1
+docker network disconnect distributeddblab5_cassandra-net cassandra-2
+docker network disconnect distributeddblab5_cassandra-net cassandra-3
+
+10. Для кейспейсу з replication factor 3 задайте рівень consistency рівним 1. Виконайте
+по черзі запис значення з однаковим primary key, але різними іншими значенням
+окремо на кожну з нод (тобто створіть конфлікт).
+
+use ks3;
+CONSISTENCY ONE;
+
+INSERT INTO ks3.shopping_cart_ks3(userid, item_count, last_update_timestamp)
+VALUES ('10', 444, toTimeStamp(now()));
+
+INSERT INTO ks3.shopping_cart_ks3(userid, item_count, last_update_timestamp)
+VALUES ('10', 555, toTimeStamp(now()));
+
+INSERT INTO ks3.shopping_cart_ks3(userid, item_count, last_update_timestamp)
+VALUES ('10', 777, toTimeStamp(now()));
+
+SELECT *
+FROM ks3.shopping_cart_ks3;
+
+
+11. Відновіть зв'язок між нодами, і перевірте що вони знову об'єдналися у кластер.
+Визначте яким чином була вирішений конфлікт даних та яке значення було
+прийнято кластером та за яким принципом.
+
+docker network connect distributeddblab5_cassandra-net cassandra-1
+docker network connect distributeddblab5_cassandra-net cassandra-2
+docker network connect distributeddblab5_cassandra-net cassandra-3
+
+docker exec cassandra-1 nodetool status ks1;
+docker exec cassandra-2 nodetool status ks2;
+docker exec cassandra-3 nodetool status ks3;
+
+SELECT *
+FROM ks3.shopping_cart_ks3;
+
